@@ -14,6 +14,8 @@ use Sherlock\components\queries;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use sherlock\components\FacetInterface;
 use Sherlock\responses\QueryResponse;
+use Sherlock\components\queries\QueryString;
+use Sherlock\components\queries\QueryStringMultiField;
 
 /**
  * SearchRequest facilitates searching an ES index using the ES query DSL
@@ -339,7 +341,12 @@ class SearchRequest extends Request
 
         foreach (array('from', 'size', 'timeout', 'sort', 'min_score') as $key) {
             if (isset($this->params[$key])) {
-                $finalQuery[$key] = $this->params[$key];
+                if ($this->params['query'] instanceof QueryString ||
+                    $this->params['query'] instanceof QueryStringMultiField){
+                    $finalQuery['query'][$key] = $this->params[$key];
+                } else {
+                    $finalQuery[$key] = $this->params[$key];
+                }
             }
         }
 
